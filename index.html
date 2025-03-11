@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Avatar Generator</h1>
+    <form id="avatarForm">
+        <input type="text" id="nameInput" placeholder="Enter a name or a word" required>
+        <button type="submit">Generate</button>
+    </form>
+    <h2>Your Avatar:</h2>
+    <canvas id="avatarCanvas" width="300" height="300"></canvas>
+
+    <script>
+        // Функция для генерации аватара
+        function generateAvatar(name) {
+            const canvas = document.getElementById('avatarCanvas');
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const grid_size = 15;
+            const block_size = size / grid_size;
+            
+            // Генерация цвета фона на основе хеш-значения
+            const hash = md5(name);
+            const r = parseInt(hash.substring(0, 2), 16);
+            const g = parseInt(hash.substring(2, 4), 16);
+            const b = parseInt(hash.substring(4, 6), 16);
+            const bgColor = `rgb(${r}, ${g}, ${b})`;
+            
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, size, size); // Закрашиваем фон
+            
+            // Генерация случайных блоков
+            const colors = [
+                `rgb(${r}, ${g}, ${b})`,
+                `rgb(${(r + 50) % 255}, ${(g + 50) % 255}, ${(b + 50) % 255})`
+            ];
+
+            for (let x = 0; x < grid_size / 2 + 1; x++) {
+                for (let y = 0; y < grid_size; y++) {
+                    if (Math.random() < 0.5) {
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x * block_size, y * block_size, block_size, block_size);
+                        ctx.fillRect((grid_size - x - 1) * block_size, y * block_size, block_size, block_size);
+                    }
+                }
+            }
+        }
+
+        // Обработчик формы
+        document.getElementById('avatarForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('nameInput').value;
+            const avatarKey = md5(name); // Используем хешированное имя как ключ
+
+            // Если слово "220", показываем картинку
+            if (name === "220") {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('avatarCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Масштабируем изображение, чтобы оно поместилось в канвас
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    
+                    // Вычисляем новые размеры изображения
+                    const newWidth = img.width * scale;
+                    const newHeight = img.height * scale;
+                    
+                    // Очистка канваса перед загрузкой нового изображения
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Отображаем изображение с новыми размерами
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                };
+                img.src = "D:/seeton/Homework/5(1)/photo_5368827365200885816_x.png"; // Путь к картинке для "220"
+            }
+            // Если слово "hello", показываем другую картинку
+            else if (name === "check engine") {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('avatarCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Масштабируем изображение, чтобы оно поместилось в канвас
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    
+                    // Вычисляем новые размеры изображения
+                    const newWidth = img.width * scale;
+                    const newHeight = img.height * scale;
+                    
+                    // Очистка канваса перед загрузкой нового изображения
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Отображаем изображение с новыми размерами
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                };
+                img.src = "D:/seeton/Homework/5(1)/photo_5368827365200885819_y.jpg"; // Путь к картинке для "hello"
+            } 
+            else {
+                // Если не одно из указанных слов, генерируем аватар
+                generateAvatar(name);
+                const canvas = document.getElementById('avatarCanvas');
+                const dataUrl = canvas.toDataURL(); // Преобразуем изображение в строку Data URL
+                localStorage.setItem(avatarKey, dataUrl); // Сохраняем изображение в localStorage
+            }
+        });
+
+        // MD5 хеш-функция (для генерации цвета)
+        function md5(string) {
+            return CryptoJS.MD5(string).toString(CryptoJS.enc.Hex);
+        }
+    </script>
+</body>
+</html>
